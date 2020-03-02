@@ -20,7 +20,6 @@
 	<div id="container"></div>
 	<div id="info">
 	  gridworld. x is red, y is green, z is blue. <br />
-      npcs and agents are colored boxes. <br />
       console.log(g_scene) to inspect
 	</div>
 
@@ -30,6 +29,8 @@
 
 	 import Stats from './vendor/jsm/libs/stats.module.js';
 	 import { GUI } from './vendor/jsm/libs/dat.gui.module.js';
+
+	 import { GLTFLoader } from './vendor/jsm/loaders/GLTFLoader.js';
 
 	 import { DragControls } from './vendor/jsm/controls/DragControls.js';
 	 import { OrbitControls } from './vendor/jsm/controls/OrbitControls.js';
@@ -65,11 +66,13 @@
 	   removeNode: removeNode,
 	 };
 
-	 init();
-     render();
-	 //animate();
+     new GLTFLoader().load('scene.gltf', function(ambivalence) {
+       window.g_robot = ambivalence.scene.clone();
+       init(ambivalence.scene);
+       render();
+     });
 
-	 function init() {
+	 function init(robot) {
 
 	   container = document.getElementById( 'container' );
 
@@ -103,11 +106,13 @@
 	   plane.receiveShadow = false; // XXX
 	   scene.add( plane );
 
-       var texture = new THREE.TextureLoader().load( "./mosaic.png" );
+       var texture = new THREE.TextureLoader().load( "./mosaic.png", function() {
+         render();
+       } );
        texture.magFilter = THREE.NearestFilter;
        texture.minFilter = THREE.NearestFilter;
        texture.premultiplyAlpha = true;
-	   var floorMaterial = new THREE.MeshBasicMaterial( { map: texture, side: THREE.DoubleSide, transparent: true, opacity: 1, color: 0xffffff  } );
+	   var floorMaterial = new THREE.MeshBasicMaterial( { map: texture, side: THREE.DoubleSide, transparent: true, opacity: 0.3, color: 0xffffff  } );
 	   var floorGeometry = new THREE.PlaneGeometry(1000, 1000, 10, 10);
 	   var floor = new THREE.Mesh(floorGeometry, floorMaterial);
 	   floor.position.y = -50;
@@ -125,7 +130,7 @@
        baseGrid.name = "floor";
 
 	   baseGrid = new THREE.GridHelper( gridSize, 10 );
-	   baseGrid.position.y = -250;
+	   baseGrid.position.y = 150;
        baseGrid.position.x = -50;
        baseGrid.position.z = -50;
 	   baseGrid.material.opacity = 0.5;
@@ -255,7 +260,23 @@
 	 function addWorldObject( position ) {
 
 	   var material = new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } );
-	   var object = new THREE.Mesh( geometry, material );
+
+	   var box = new THREE.Mesh( geometry, material );
+       var robot = window.g_robot.clone();
+       box.add( robot );
+       var object = box;
+
+       robot.position.x = 17;
+       robot.position.y = -45;
+       robot.position.z = -45;
+
+       robot.scale.x = 1.7;
+       robot.scale.y = 1.8;
+       robot.scale.z = 1.8;
+
+       //var object = window.g_robot.clone();
+       //box.attach( object );
+
 
        object.name = "agent";
 
@@ -324,14 +345,6 @@
 
 	   }
 
-	 }
-
-	 function animate() {
-
-	   /* requestAnimationFrame( animate );
-	      render();
-	      stats.update();
-        */
 	 }
 
 	 function render() {
