@@ -84,7 +84,7 @@
 
 	   scene.add( new THREE.AmbientLight( 0xf0f0f0 ) );
 	   var light = new THREE.SpotLight( 0xffffff, 1.5 );
-	   light.position.set( 0, 1500, 200 );
+	   light.position.set( 0, 2000, 200 );
 	   light.angle = Math.PI * 0.2;
 	   light.castShadow = true;
 	   light.shadow.camera.near = 200;
@@ -100,7 +100,7 @@
 
 	   var plane = new THREE.Mesh( planeGeometry, planeMaterial );
 	   plane.position.y = 0;
-	   plane.receiveShadow = true;
+	   plane.receiveShadow = false; // XXX
 	   scene.add( plane );
 
        var texture = new THREE.TextureLoader().load( "./mosaic.png" );
